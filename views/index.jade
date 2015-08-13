@@ -1,4 +1,12 @@
 extends layout
 
 block content
-    h1= title
+    script(src="/javascripts/Menu.js")
+    script(src="/javascripts/exercises/Engine.js")
+    script(src="/javascripts/exercises/Score.js")
+
+    div#content
+    script(language="javascript").
+        $(document).ready(function () {
+            new Menu().buildMainMenu();
+        });
