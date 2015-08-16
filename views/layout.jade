@@ -5,6 +5,35 @@ html
         link(rel='stylesheet', href='/stylesheets/style.css')
         link(rel='stylesheet', href='/stylesheets/primschool.css')
         link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css')
-        script(src='http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js')
+        script(src='http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js')
+        script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js')
     body
+        div.navbar.navbar-default.navbar-fixed-top
+            div.container
+                div.navbar-header
+                    a.navbar-brand(href='/')
+                        span.navbar-brand-label PrimSchool
+                    button.navbar-toggle.collapsed(data-toggle='collapse', data-target='.my-navbar-collapse')
+                        span.icon-bar
+                        span.icon-bar
+                        span.icon-bar
+                div.navbar-collapse.my-navbar-collapse.collapse
+                    ul.nav.navbar-nav
+                        li: a(href='/') Accueil
+                        li: a(href='/exercises/') Exercices
+                        if user && user.username
+                            li: a(href='/account/') Mon compte
+                        else
+                            li: a(href='/signup/') S'inscrire
+                    ul.nav.navbar-nav.navbar-right
+                        li.dropdown
+                        if user && user.username
+                            li: a(href='/logout/')
+                                i.fa.fa-user
+                                |  Deconnexion #{user.username}
+                        else
+                            li: a(href='/login/')
+                                i.fa.fa-user
+                                |  Connexion
+
         block content
