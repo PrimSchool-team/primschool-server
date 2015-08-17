@@ -8,12 +8,16 @@ var showUserList = function () {
             tableContent += '<td>' + this.email + '</td>';
             tableContent += '<td>' + this.firstName + '</td>';
             tableContent += '<td>' + this.lastName + '</td>';
-            if (this.isActive) {
-                tableContent += '<td><a class="btn btn-warning btn-md active" href="#"><i class="glyphicon glyphicon-thumbs-down">&nbsp;Desactiver</i></a></td>';
+            if (this.username === 'root') {
+                tableContent += '<td></td><td></td>';
             } else {
-                tableContent += '<td><a class="btn btn-success btn-md active" href="#"><i class="glyphicon glyphicon-thumbs-up">&nbsp;Activer</i></a></td>';
+                if (this.isActive) {
+                    tableContent += '<td><a class="btn btn-warning btn-md active" onclick="invalidateUser(event, $(this));" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-thumbs-down">&nbsp;Desactiver</i></a></td>';
+                } else {
+                    tableContent += '<td><a class="btn btn-success btn-md active" onclick="validateUser(event, $(this));" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-thumbs-up">&nbsp;Activer</i></a></td>';
+                }
+                tableContent += '<td><a class="btn btn-danger btn-md active" onclick="deleteUser(event, $(this));" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-remove">&nbsp;Supprimer</i></a></td>';
             }
-            tableContent += '<td><a class="btn btn-danger btn-md active" onclick="deleteUser(event, $(this));" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-remove">&nbsp;Supprimer</i></a></td>';
             tableContent += '</tr>';
         });
         $('#userList table tbody').html(tableContent);
@@ -38,4 +42,30 @@ var deleteUser = function (event, element) {
     } else {
         return false;
     }
+};
+
+var validateUser = function (event, element) {
+    event.preventDefault();
+    $.ajax({
+        type: 'POST',
+        url: '/admin/validateuser/' + element.attr('rel')
+    }).done(function (response) {
+        if (response.msg !== '') {
+            alert('Error: ' + response.msg);
+        }
+        showUserList();
+    });
+};
+
+var invalidateUser = function (event, element) {
+    event.preventDefault();
+    $.ajax({
+        type: 'POST',
+        url: '/admin/invalidateuser/' + element.attr('rel')
+    }).done(function (response) {
+        if (response.msg !== '') {
+            alert('Error: ' + response.msg);
+        }
+        showUserList();
+    });
 };

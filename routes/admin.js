@@ -35,4 +35,24 @@ router.delete('/deleteuser/:id', function (req, res) {
     });
 });
 
+router.post('/validateuser/:id', function (req, res) {
+    var db = req.db;
+    var collection = db.get('users');
+    var userToValidate = req.params.id;
+
+    collection.update(userToValidate, {$set: {isActive: true}}, function (err) {
+        res.send((err === null) ? {msg: ''} : {msg: 'error: ' + err});
+    });
+});
+
+router.post('/invalidateuser/:id', function (req, res) {
+    var db = req.db;
+    var collection = db.get('users');
+    var userToValidate = req.params.id;
+
+    collection.update(userToValidate, {$set: {isActive: false}}, function (err) {
+        res.send((err === null) ? {msg: ''} : {msg: 'error: ' + err});
+    });
+});
+
 module.exports = router;
