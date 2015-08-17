@@ -10,3 +10,15 @@ h2 {
 a {
   color: #00B7FF;
 }
+
+table tr td {
+  background: #fff;
+  padding: 6px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid #ddd;
+}
+
+table tr:nth-child(2n) td {
+  background: #fffa86;
+}

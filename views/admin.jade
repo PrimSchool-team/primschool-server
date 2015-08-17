@@ -2,3 +2,27 @@ extends layout
 
 block content
     script(src="/javascripts/admin.js")
+
+    br
+    br
+    div.row.vertical-offset-100
+        div.col-md-8.col-md-offset-2
+            div.panel.panel-primary
+                div.panel-heading
+                    h3(class='panel-title') Utilisateurs
+                div.panel-body
+                    #userList
+                        table.table
+                            thead
+                                th Login
+                                th Email
+                                th Prénom
+                                th Nom
+                                th
+                                th
+                            tbody
+
+    script(language="javascript").
+        $(document).ready(function () {
+            showUserList();
+        });

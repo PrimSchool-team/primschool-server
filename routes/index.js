@@ -12,7 +12,7 @@ router.get('/login', function(req, res) {
 
 router.post('/login', passport.authenticate('login', {
   successRedirect: '/admin',
-  failureRedirect: '/',
+  failureRedirect: '/login',
   failureFlash : true
 }));
 
@@ -26,7 +26,7 @@ router.get('/signup', function(req, res){
 });
 
 router.post('/signup', passport.authenticate('signup', {
-  successRedirect: '/',
+  successRedirect: '/logout',
   failureRedirect: '/signup',
   failureFlash : true
 }));
