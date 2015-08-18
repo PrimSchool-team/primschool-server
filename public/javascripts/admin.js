@@ -1,10 +1,101 @@
+/**
+ *  This file is part of PrimSchool project.
+ *
+ *  PrimSchool is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This Web application is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with PrimSchool.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @copyright     Copyright (c) PrimSchool
+ * @link          http://primschool.org
+ * @license       http://www.gnu.org/licenses/ GPLv3 License
+ */
+
+// school management
+var showSchoolList = function () {
+    var tableContent = '';
+
+    $.getJSON('/admin/schoollist', function (data) {
+        var text = $('<i />', { class: "glyphicon glyphicon-plus", html: "&nbsp;Nouvelle école" });
+        var button = $('<a />', {
+            class: "btn btn-primary btn-md active",
+            href: "/admin/createschool/" });
+
+        $('#title').html('Ecoles');
+        $('#newbutton').html('');
+        text.appendTo(button);
+        button.appendTo($('#newbutton'));
+        $('<br />').appendTo($('#newbutton'));
+        $('<br />').appendTo($('#newbutton'));
+        $('#tablehead').html('<th>Nom</th><th></th>');
+        $.each(data, function () {
+            tableContent += '<tr>';
+            tableContent += '<td><a href="#" rel="' + this._id + '" title="Show Details">' + this.name + '</a></td>';
+            tableContent += '<td><a class="btn btn-danger btn-md active" onclick="deleteSchool(event, $(this));" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-remove">&nbsp;Supprimer</i></a></td>';
+            tableContent += '</tr>';
+        });
+        $('#tablebody').html(tableContent);
+    });
+};
+
+var addSchool = function(event, element) {
+    event.preventDefault();
+
+    var newSchool = {
+        'name': $('#addschool fieldset input#inputName').val()
+    };
+    $.ajax({
+        type: 'POST',
+        data: newSchool,
+        url: '/admin/addschool',
+        dataType: 'JSON'
+    }).done(function( response ) {
+        if (response.msg === '') {
+            window.location.replace("/admin");
+        } else {
+            alert('Error: ' + response.msg);
+        }
+    });
+};
+
+var deleteSchool = function (event, element) {
+    event.preventDefault();
+
+    var confirmation = confirm('Etes-vous sûr de vouloir supprimer l\'école ?');
+
+    if (confirmation) {
+        $.ajax({
+            type: 'DELETE',
+            url: '/admin/deleteschool/' + element.attr('rel')
+        }).done(function (response) {
+            if (response.msg !== '') {
+                alert('Error: ' + response.msg);
+            }
+            showSchoolList();
+        });
+    } else {
+        return false;
+    }
+};
+
+// group management
+
+// user management
 var showUserList = function () {
     var tableContent = '';
 
     $.getJSON('/admin/userlist', function (data) {
         $.each(data, function () {
             tableContent += '<tr>';
-            tableContent += '<td><a href="#" class="linkshowuser" rel="' + this.username + '" title="Show Details">' + this.username + '</a></td>';
+            tableContent += '<td><a href="#" rel="' + this._id + '" title="Show Details">' + this.username + '</a></td>';
             tableContent += '<td>' + this.email + '</td>';
             tableContent += '<td>' + this.firstName + '</td>';
             tableContent += '<td>' + this.lastName + '</td>';
@@ -20,7 +111,7 @@ var showUserList = function () {
             }
             tableContent += '</tr>';
         });
-        $('#userList table tbody').html(tableContent);
+        $('#tablebody').html(tableContent);
     });
 };
 

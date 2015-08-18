@@ -1,0 +1,19 @@
+extends layout
+
+block content
+    script(src="/javascripts/admin.js")
+
+    br
+    br
+    div.row.vertical-offset-100
+        div.col-md-8.col-md-offset-2
+            div.panel.panel-primary
+                div.panel-heading
+                    h3#title(class='panel-title') Nouvelle école
+                div.panel-body#panelbody
+                    form(class='form-signup', action='#', method='POST')
+                    #addschool
+                        fieldset
+                            input#inputName(type='text', name='name' class='form-control', placeholder='Nom',required, autofocus)
+                            br
+                            button(class='btn btn-lg btn-primary btn-block', onclick="addSchool(event, $(this))", type='submit') Créer

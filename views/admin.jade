@@ -9,20 +9,14 @@ block content
         div.col-md-8.col-md-offset-2
             div.panel.panel-primary
                 div.panel-heading
-                    h3(class='panel-title') Utilisateurs
-                div.panel-body
-                    #userList
-                        table.table
-                            thead
-                                th Login
-                                th Email
-                                th Prénom
-                                th Nom
-                                th
-                                th
-                            tbody
+                    h3#title(class='panel-title') Utilisateurs
+                div.panel-body#panelbody
+                    div#newbutton
+                    table.table#table
+                        thead#tablehead
+                        tbody#tablebody
 
     script(language="javascript").
         $(document).ready(function () {
-            showUserList();
+            showSchoolList();
         });
