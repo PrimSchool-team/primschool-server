@@ -1,0 +1,32 @@
+extends layout
+
+block content
+    script(src="/javascripts/admin.js")
+
+    br
+    br
+    div.row.vertical-offset-100
+        div.col-md-8.col-md-offset-2
+            div.panel.panel-primary
+                div.panel-heading
+                    h3#title(class='panel-title') Nouveau groupe
+                    div#backdiv(style="float: right;")
+                        a#backlink(class='btn btn-danger btn-md active',href="#")
+                            i(class="glyphicon glyphicon-share-alt")
+                div.panel-body#panelbody
+                    form(class='form-signup', action='#', method='POST')
+                    #addgroup
+                        fieldset
+                            br
+                            input#inputIdSchool(type='hidden', name='idSchool', value='#{idSchool}')
+                            input#inputSigle(type='text', name='sigle' class='form-control', placeholder='Sigle',required, autofocus)
+                            br
+                            input#inputName(type='text', name='name' class='form-control', placeholder='Nom',required)
+                            br
+                            select#inputIdOwner(name="idOwner", class='form-control', placeholder='Propriétaire',required)
+                                option(value='-1') Sélectionner un utilisateur
+                                each user in users
+                                    if user.username != 'root'
+                                        option(value='#{user._id}') #{user.username}
+                            br
+                            button(class='btn btn-lg btn-primary btn-block', onclick="addGroup(event, $(this))", type='submit') Créer

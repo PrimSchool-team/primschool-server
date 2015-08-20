@@ -30,6 +30,7 @@ var showSchoolList = function () {
             href: "/admin/createschool/" });
 
         $('#title').html('Ecoles');
+        $('#backdiv').hide();
         $('#newbutton').html('');
         text.appendTo(button);
         button.appendTo($('#newbutton'));
@@ -39,6 +40,8 @@ var showSchoolList = function () {
         $.each(data, function () {
             tableContent += '<tr>';
             tableContent += '<td><a href="#" rel="' + this._id + '" title="Show Details">' + this.name + '</a></td>';
+            tableContent += '<td><a class="btn btn-success btn-md active" onclick="showGroupList($(this));" href="#" rel="' + this._id + '">Groupes</a></td>';
+            tableContent += '<td><a class="btn btn-warning btn-md active" onclick="showUserList($(this));" href="#" rel="' + this._id + '">Utilisateurs</a></td>';
             tableContent += '<td><a class="btn btn-danger btn-md active" onclick="deleteSchool(event, $(this));" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-remove">&nbsp;Supprimer</i></a></td>';
             tableContent += '</tr>';
         });
@@ -87,12 +90,89 @@ var deleteSchool = function (event, element) {
 };
 
 // group management
+var showGroupList = function (element) {
+    var tableContent = '';
+
+    $.ajax({
+        dataType: 'json',
+        url : '/admin/grouplist/' + element.attr('rel')
+    }).done(function (data) {
+        var text = $('<i />', { class: "glyphicon glyphicon-plus", html: "&nbsp;Nouveau groupe" });
+        var button = $('<a />', {
+            class: 'btn btn-primary btn-md active',
+            href: '/admin/creategroup/' + element.attr('rel') });
+
+        $('#title').html('Groupes');
+        $('#backdiv').show();
+        $('#newbutton').html('');
+        text.appendTo(button);
+        button.appendTo($('#newbutton'));
+        $('<br />').appendTo($('#newbutton'));
+        $('<br />').appendTo($('#newbutton'));
+        $('#tablehead').html('<th>Sigle</th><th>Nom</th><th>Propriétaire</th><th></th>');
+        $.each(data, function () {
+            tableContent += '<tr>';
+            tableContent += '<td><a href="#" rel="' + this._id + '" title="Show Details">' + this.sigle + '</a></td>';
+            tableContent += '<td>' + this.name + '</td>';
+            tableContent += '<td>' + this.owner.username + '</td>';
+            tableContent += '<td><a class="btn btn-danger btn-md active" onclick="deleteGroup(event, $(this));" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-remove">&nbsp;Supprimer</i></a></td>';
+            tableContent += '</tr>';
+        });
+        $('#tablebody').html(tableContent);
+    });
+};
+
+var addGroup = function(event, element) {
+    event.preventDefault();
+
+    var newGroup = {
+        'name': $('#addgroup fieldset input#inputName').val(),
+        'sigle': $('#addgroup fieldset input#inputSigle').val(),
+        'idOwner': $('#addgroup fieldset select#inputIdOwner').val(),
+        'idSchool': $('#addgroup fieldset input#inputIdSchool').val()
+    };
+    $.ajax({
+        type: 'POST',
+        data: newGroup,
+        url: '/admin/addgroup',
+        dataType: 'JSON'
+    }).done(function( response ) {
+        if (response.msg === '') {
+            window.location.replace("/admin");
+        } else {
+            alert('Error: ' + response.msg);
+        }
+    });
+};
+
+var deleteGroup = function (event, element) {
+    event.preventDefault();
+
+    var confirmation = confirm('Etes-vous sûr de vouloir supprimer le groupe ?');
+
+    if (confirmation) {
+        $.ajax({
+            type: 'DELETE',
+            url: '/admin/deletegroup/' + element.attr('rel')
+        }).done(function (response) {
+            if (response.msg !== '') {
+                alert('Error: ' + response.msg);
+            }
+            showSchoolList();
+        });
+    } else {
+        return false;
+    }
+};
 
 // user management
 var showUserList = function () {
     var tableContent = '';
 
     $.getJSON('/admin/userlist', function (data) {
+        $('#title').html('Utilisateurs');
+        $('#backdiv').show();
+        $('#newbutton').html('');
         $.each(data, function () {
             tableContent += '<tr>';
             tableContent += '<td><a href="#" rel="' + this._id + '" title="Show Details">' + this.username + '</a></td>';

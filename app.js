@@ -5,18 +5,14 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var flash = require('connect-flash');
+var passport = require('passport');
 // Database
 var mongo = require('mongodb');
-var monk = require('monk');
-var db = monk('localhost:27017/primschool');
+var mongoose = require('mongoose');
 var expressSession = require('express-session');
 
 var routes = require('./routes/index');
 var admin = require('./routes/admin');
-
-// Authentification
-var passport = require('passport');
-require('./passport');
 
 var app = express();
 
@@ -33,16 +29,29 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(flash());
 
+//setup mongoose
+app.db = mongoose.createConnection(process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || 'localhost/primschool');
+app.db.on('error', console.error.bind(console, 'mongoose connection error: '));
+app.db.once('open', function () {
+    //and... we have a data store
+});
+
+//config data models
+require('./models')(app, mongoose);
+
+// Authentification
+require('./passport')(app, passport);
+
 // passport configuration
 app.use(expressSession({secret: 'mySecretKey'}));
 app.use(passport.initialize());
 app.use(passport.session());
 
 // Make our db accessible to our router
-app.use(function (req, res, next) {
+/*app.use(function (req, res, next) {
     req.db = db;
     next();
-});
+}); */
 
 app.use('/', routes);
 app.use('/admin', admin);
