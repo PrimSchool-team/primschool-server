@@ -19,7 +19,10 @@
  * @license       http://www.gnu.org/licenses/ GPLv3 License
  */
 
+// *****************
 // school management
+// *****************
+
 var showSchoolList = function () {
     var tableContent = '';
 
@@ -89,7 +92,10 @@ var deleteSchool = function (event, element) {
     }
 };
 
+// ****************
 // group management
+// ****************
+
 var showGroupList = function (element) {
     var tableContent = '';
 
@@ -104,6 +110,7 @@ var showGroupList = function (element) {
 
         $('#title').html('Groupes');
         $('#backdiv').show();
+        $('#backlink').attr('onclick', 'showSchoolList();');
         $('#newbutton').html('');
         text.appendTo(button);
         button.appendTo($('#newbutton'));
@@ -165,13 +172,17 @@ var deleteGroup = function (event, element) {
     }
 };
 
+// ***************
 // user management
+// ***************
+
 var showUserList = function () {
     var tableContent = '';
 
     $.getJSON('/admin/userlist', function (data) {
         $('#title').html('Utilisateurs');
         $('#backdiv').show();
+        $('#backlink').attr('onclick', 'showSchoolList();');
         $('#newbutton').html('');
         $.each(data, function () {
             tableContent += '<tr>';
