@@ -154,12 +154,19 @@ router.delete('/deletegroup/:id', function (req, res) {
 });
 
 // user management
-router.get('/userlist', function (req, res) {
+router.get('/userlist/:id', function (req, res) {
     var db = req.app.db;
+    var schoolID = req.params.id;
 
-    db.models.User.find({}, {}, function (err, users) {
-        res.json(users);
-    });
+    if (schoolID === -1) {
+        db.models.User.find({}, {}, function (err, users) {
+            res.json(users);
+        });
+    } else {
+        db.models.User.find({school: schoolID}, {}, function (err, users) {
+            res.json(users);
+        });
+    }
 });
 
 router.delete('/deleteuser/:id', function (req, res) {

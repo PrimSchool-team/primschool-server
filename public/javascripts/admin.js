@@ -179,14 +179,15 @@ var deleteGroup = function (event, element) {
 // user management
 // ***************
 
-var showUserList = function () {
+var showUserList = function (element) {
     var tableContent = '';
 
-    $.getJSON('/admin/userlist', function (data) {
+    $.getJSON('/admin/userlist/' + element.attr('rel'), function (data) {
         $('#title').html('Utilisateurs');
         $('#backdiv').show();
         $('#backlink').attr('onclick', 'showSchoolList();');
         $('#newbutton').html('');
+        $('#tablehead').html('<th>Login</th><th>Email</th><th>Prénom</th><th>Nom</th>');
         $.each(data, function () {
             tableContent += '<tr>';
             tableContent += '<td><a href="#" rel="' + this._id + '" title="Show Details">' + this.username + '</a></td>';
