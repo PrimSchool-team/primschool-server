@@ -16,4 +16,10 @@ block content
                         fieldset
                             input#inputName(type='text', name='name' class='form-control', placeholder='Nom',required, autofocus)
                             br
+                            select#inputIdOwner(name="idOwner", class='form-control', placeholder='Propriétaire',required)
+                                option(value='-1') Sélectionner un responsable
+                                each user in users
+                                    if user.username != 'root'
+                                        option(value='#{user._id}') #{user.username}
+                            br
                             button(class='btn btn-lg btn-primary btn-block', onclick="addSchool(event, $(this))", type='submit') Créer

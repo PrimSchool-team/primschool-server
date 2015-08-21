@@ -42,7 +42,14 @@ router.get('/createschool', function (req, res, next) {
         res.redirect('/');
     }, function (req, res) {
         if (req.user.username === 'root') {
-            res.render('createschool', {user: req.user});
+            var db = req.app.db;
+
+            db.models.User.find({}, {}, function (err, users) {
+                res.render('createschool', {
+                    user: req.user,
+                    users: users
+                });
+            });
         } else {
             res.redirect('/');
         }

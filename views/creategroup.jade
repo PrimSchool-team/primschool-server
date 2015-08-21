@@ -24,7 +24,7 @@ block content
                             input#inputName(type='text', name='name' class='form-control', placeholder='Nom',required)
                             br
                             select#inputIdOwner(name="idOwner", class='form-control', placeholder='Propriétaire',required)
-                                option(value='-1') Sélectionner un utilisateur
+                                option(value='-1') Sélectionner un responsable
                                 each user in users
                                     if user.username != 'root'
                                         option(value='#{user._id}') #{user.username}
