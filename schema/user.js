@@ -5,9 +5,11 @@ exports = module.exports = function (app, mongoose) {
         email: String,
         firstName: String,
         lastName: String,
-        isActive: Boolean
+        isActive: Boolean,
+        roles: [{type: String, enum: ['admin', 'student', 'teacher', 'chief']}],
+        groups: [{type: mongoose.Schema.Types.ObjectId, ref: 'Group'}]
     });
-    userSchema.index({ username: 1 }, { unique: true });
+    userSchema.index({username: 1}, {unique: true});
     userSchema.set('autoIndex', (app.get('env') === 'development'));
     app.db.model('User', userSchema);
 };

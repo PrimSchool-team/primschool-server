@@ -124,7 +124,7 @@ var showGroupList = function (element) {
             tableContent += '<td><a href="#" rel="' + this._id + '" title="Show Details">' + this.sigle + '</a></td>';
             tableContent += '<td>' + this.name + '</td>';
             tableContent += '<td>' + this.owner.username + '</td>';
-            tableContent += '<td><a class="btn btn-success btn-md active" onclick="addUserToGroup(event, $(this));" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-plus">&nbsp;Ajout d\'élèves</i></a></td>';
+            tableContent += '<td><a class="btn btn-success btn-md active" onclick="showUserListOfGroup(event, $(this));" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-plus">&nbsp;Liste des élèves</i></a></td>';
             tableContent += '<td><a class="btn btn-danger btn-md active" onclick="deleteGroup(event, $(this));" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-remove">&nbsp;Supprimer</i></a></td>';
             tableContent += '</tr>';
         });
@@ -254,3 +254,66 @@ var invalidateUser = function (event, element) {
         showUserList();
     });
 };
+
+var showUserListOfGroup = function (event, element) {
+    var tableContent = '';
+
+    $.getJSON('/admin/group/' + element.attr('rel'), function (data) {
+        $('#title').html('Elèves [' + data.name +']');
+        $.ajax({
+            type: 'GET',
+            url: '/admin/userlist/' + element.attr('rel'),
+            dataType: 'JSON'
+        }).done(function (data) {
+            var text = $('<i />', { class: "glyphicon glyphicon-plus", html: "&nbsp;Nouveau élève" });
+            var button = $('<a />', {
+                class: 'btn btn-primary btn-md active',
+                href: '/admin/createusertogroup/' + element.attr('rel') });
+
+            $('#backdiv').show();
+            $('#backlink').attr('onclick', 'showSchoolList();');
+            $('#newbutton').html('');
+            text.appendTo(button);
+            button.appendTo($('#newbutton'));
+            $('<br />').appendTo($('#newbutton'));
+            $('<br />').appendTo($('#newbutton'));
+            $('#tablehead').html('<th>Prénom</th><th>Nom</th><th></th><th></th>');
+            $.each(data, function () {
+                tableContent += '<tr>';
+                tableContent += '<td>' + this.firstName + '</td>';
+                tableContent += '<td>' + this.lastName + '</td>';
+                if (this.username === 'root') {
+                    tableContent += '<td></td><td></td>';
+                } else {
+                    tableContent += '<td><a class="btn btn-warning btn-md active" onclick="removeUserToGroup(event, $(this));" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-share">&nbsp;Retirer du groupe</i></a></td>';
+                    tableContent += '<td><a class="btn btn-danger btn-md active" onclick="deleteUser(event, $(this));" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-remove">&nbsp;Supprimer</i></a></td>';
+                }
+                tableContent += '</tr>';
+            });
+            $('#tablebody').html(tableContent);
+        });
+    });
+};
+
+var addUserToGroup = function(event, element) {
+    event.preventDefault();
+
+    var newUser = {
+        'firstName': $('#adduser fieldset input#inputFirstName').val(),
+        'lastName': $('#adduser fieldset input#inputLastName').val(),
+        'idGroup': $('#adduser fieldset input#inputIdGroup').val()
+    };
+    $.ajax({
+        type: 'POST',
+        data: newUser,
+        url: '/admin/addusertogroup',
+        dataType: 'JSON'
+    }).done(function( response ) {
+        if (response.msg === '') {
+            window.location.replace("/admin");
+        } else {
+            alert('Error: ' + response.msg);
+        }
+    });
+};
+

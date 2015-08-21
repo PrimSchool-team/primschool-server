@@ -29,15 +29,23 @@ router.post('/addschool', function (req, res) {
     var newSchool = new db.models.School();
 
     newSchool.name = req.body.name;
-
-    console.log(req.body.idOwner);
-
     db.models.User.findById(req.body.idOwner, function (err, user) {
         newSchool.owner = user;
         newSchool.save(function (err) {
-            res.send(
-                (err === null) ? {msg: ''} : {msg: err}
-            );
+            if (err) {
+                res.send({msg: err});
+            } else {
+                if (user.roles.indexOf("chief") === -1) {
+                    var roles = user.roles;
+
+                    roles.push("chief");
+                    db.models.User.where({_id: user._id}).update({$set: {roles: roles}}, function (err) {
+                        res.send((err === null) ? {msg: ''} : {msg: 'error: ' + err});
+                    });
+                } else {
+                    res.send({msg: ''});
+                }
+            }
         });
     });
 });
@@ -73,11 +81,14 @@ router.delete('/deleteschool/:id', function (req, res) {
 
 // group management
 router.get('/grouplist/:id', function (req, res) {
-    var db = req.app.db;
-
-
-    db.models.Group.find({'school._id': mongoose.Schema.Types.ObjectId(req.params.id)}, {}, function (err, groups) {
+    req.app.db.models.Group.find({'school._id': mongoose.Schema.Types.ObjectId(req.params.id)}, {}, function (err, groups) {
         res.json(groups);
+    });
+});
+
+router.get('/group/:id', function (req, res) {
+    req.app.db.models.Group.findOne({'_id': mongoose.Schema.Types.ObjectId(req.params.id)}, {}, function (err, group) {
+        res.json(group);
     });
 });
 
@@ -92,9 +103,20 @@ router.post('/addgroup', function (req, res) {
         db.models.User.findById(req.body.idOwner, function (err, user) {
             newGroup.owner = user;
             newGroup.save(function (err) {
-                res.send(
-                    (err === null) ? {msg: ''} : {msg: err}
-                );
+                if (err) {
+                    res.send({msg: err});
+                } else {
+                    if (user.roles.indexOf("teacher") === -1) {
+                        var roles = user.roles;
+
+                        roles.push("teacher");
+                        db.models.User.where({_id: user._id}).update({$set: {roles: roles}}, function (err) {
+                            res.send((err === null) ? {msg: ''} : {msg: 'error: ' + err});
+                        });
+                    } else {
+                        res.send({msg: ''});
+                    }
+                }
             });
         });
     });
@@ -152,7 +174,7 @@ router.post('/validateuser/:id', function (req, res) {
     var db = req.app.db;
     var userToValidate = req.params.id;
 
-    db.models.User.where({ _id: userToValidate }).update({$set: {isActive: true}}, function (err) {
+    db.models.User.where({_id: userToValidate}).update({$set: {isActive: true}}, function (err) {
         res.send((err === null) ? {msg: ''} : {msg: 'error: ' + err});
     });
 });
@@ -161,9 +183,56 @@ router.post('/invalidateuser/:id', function (req, res) {
     var db = req.app.db;
     var userToValidate = req.params.id;
 
-    db.models.User.where({ _id: userToValidate }).update({$set: {isActive: false}}, function (err) {
+    db.models.User.where({_id: userToValidate}).update({$set: {isActive: false}}, function (err) {
         res.send((err === null) ? {msg: ''} : {msg: 'error: ' + err});
     });
 });
+
+router.get('/userlist/:id', function (req, res) {
+    var db = req.app.db;
+    var groupID = req.params.id;
+
+    db.models.User.find({groups: groupID}, {}, function (err, users) {
+        res.json(users);
+    });
+});
+
+router.post('/addusertogroup', function (req, res) {
+    var db = req.app.db;
+
+    db.models.Group.findById(req.body.idGroup, function (err, group) {
+        if (!err) {
+            var newUser = new db.models.User();
+
+            newUser.username = '';
+            newUser.password = '';
+            newUser.email = '';
+            newUser.firstName = req.body.firstName;
+            newUser.lastName = req.body.lastName;
+            newUser.isActive = false;
+            newUser.groups = [group._id];
+            newUser.roles = ["student"];
+            newUser.save(function (err) {
+                res.send((err === null) ? {msg: ''} : {msg: 'error: ' + err});
+            });
+        }
+    });
+});
+
+router.get('/createusertogroup/:id', function (req, res, next) {
+        if (req.isAuthenticated())
+            return next();
+        res.redirect('/');
+    }, function (req, res) {
+        if (req.user.username === 'root') {
+            res.render('createusertogroup', {
+                user: req.user,
+                idGroup: req.params.id
+            });
+        } else {
+            res.redirect('/');
+        }
+    }
+);
 
 module.exports = router;

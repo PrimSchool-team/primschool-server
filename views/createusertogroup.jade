@@ -1,0 +1,26 @@
+extends layout
+
+block content
+    script(src="/javascripts/admin.js")
+
+    br
+    br
+    div.row.vertical-offset-100
+        div.col-md-8.col-md-offset-2
+            div.panel.panel-primary
+                div.panel-heading
+                    h3#title(class='panel-title') Nouvel élève
+                    div#backdiv(style="float: right;")
+                        a#backlink(class='btn btn-danger btn-md active',href="#")
+                            i(class="glyphicon glyphicon-share-alt")
+                div.panel-body#panelbody
+                    form(class='form-signup', action='#', method='POST')
+                    #adduser
+                        fieldset
+                            br
+                            input#inputIdGroup(type='hidden', name='idGroup', value='#{idGroup}')
+                            input#inputFirstName(type='text', name='firstname' class='form-control', placeholder='Prénom',required)
+                            br
+                            input#inputLastName(type='text', name='lastname' class='form-control', placeholder='Nom',required)
+                            br
+                            button(class='btn btn-lg btn-primary btn-block', onclick="addUserToGroup(event, $(this))", type='submit') Créer
