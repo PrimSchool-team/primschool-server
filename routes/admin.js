@@ -29,10 +29,16 @@ router.post('/addschool', function (req, res) {
     var newSchool = new db.models.School();
 
     newSchool.name = req.body.name;
-    newSchool.save(function (err) {
-        res.send(
-            (err === null) ? {msg: ''} : {msg: err}
-        );
+
+    console.log(req.body.idOwner);
+
+    db.models.User.findById(req.body.idOwner, function (err, user) {
+        newSchool.owner = user;
+        newSchool.save(function (err) {
+            res.send(
+                (err === null) ? {msg: ''} : {msg: err}
+            );
+        });
     });
 });
 

@@ -39,10 +39,11 @@ var showSchoolList = function () {
         button.appendTo($('#newbutton'));
         $('<br />').appendTo($('#newbutton'));
         $('<br />').appendTo($('#newbutton'));
-        $('#tablehead').html('<th>Nom</th><th></th>');
+        $('#tablehead').html('<th>Nom</th><th>Responsable</th><th></th>');
         $.each(data, function () {
             tableContent += '<tr>';
             tableContent += '<td><a href="#" rel="' + this._id + '" title="Show Details">' + this.name + '</a></td>';
+            tableContent += '<td>' + this.owner.username + '</td>';
             tableContent += '<td><a class="btn btn-success btn-md active" onclick="showGroupList($(this));" href="#" rel="' + this._id + '">Groupes</a></td>';
             tableContent += '<td><a class="btn btn-warning btn-md active" onclick="showUserList($(this));" href="#" rel="' + this._id + '">Utilisateurs</a></td>';
             tableContent += '<td><a class="btn btn-danger btn-md active" onclick="deleteSchool(event, $(this));" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-remove">&nbsp;Supprimer</i></a></td>';
@@ -56,7 +57,8 @@ var addSchool = function(event, element) {
     event.preventDefault();
 
     var newSchool = {
-        'name': $('#addschool fieldset input#inputName').val()
+        'name': $('#addschool fieldset input#inputName').val(),
+        'idOwner': $('#addschool fieldset select#inputIdOwner').val(),
     };
     $.ajax({
         type: 'POST',
@@ -122,6 +124,7 @@ var showGroupList = function (element) {
             tableContent += '<td><a href="#" rel="' + this._id + '" title="Show Details">' + this.sigle + '</a></td>';
             tableContent += '<td>' + this.name + '</td>';
             tableContent += '<td>' + this.owner.username + '</td>';
+            tableContent += '<td><a class="btn btn-success btn-md active" onclick="addUserToGroup(event, $(this));" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-plus">&nbsp;Ajout d\'élèves</i></a></td>';
             tableContent += '<td><a class="btn btn-danger btn-md active" onclick="deleteGroup(event, $(this));" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-remove">&nbsp;Supprimer</i></a></td>';
             tableContent += '</tr>';
         });

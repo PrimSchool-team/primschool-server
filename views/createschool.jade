@@ -10,6 +10,9 @@ block content
             div.panel.panel-primary
                 div.panel-heading
                     h3#title(class='panel-title') Nouvelle école
+                    div#backdiv(style="float: right;")
+                        a#backlink(class='btn btn-danger btn-md active',href="#")
+                            i(class="glyphicon glyphicon-share-alt")
                 div.panel-body#panelbody
                     form(class='form-signup', action='#', method='POST')
                     #addschool
