@@ -256,19 +256,24 @@ var invalidateUser = function (event, element) {
 };
 
 var showUserListOfGroup = function (event, element) {
+    event.preventDefault();
+    showUserListOfGroup2(element.attr('rel'));
+};
+
+var showUserListOfGroup2 = function (groupID) {
     var tableContent = '';
 
-    $.getJSON('/admin/group/' + element.attr('rel'), function (data) {
+    $.getJSON('/admin/group/' + groupID, function (data) {
         $('#title').html('Elèves [' + data.name +']');
         $.ajax({
             type: 'GET',
-            url: '/admin/userlist/' + element.attr('rel'),
+            url: '/admin/userlist/' + groupID,
             dataType: 'JSON'
         }).done(function (data) {
             var text = $('<i />', { class: "glyphicon glyphicon-plus", html: "&nbsp;Nouveau élève" });
             var button = $('<a />', {
                 class: 'btn btn-primary btn-md active',
-                href: '/admin/createusertogroup/' + element.attr('rel') });
+                href: '/admin/createusertogroup/' + groupID });
 
             $('#backdiv').show();
             $('#backlink').attr('onclick', 'showSchoolList();');
@@ -285,7 +290,7 @@ var showUserListOfGroup = function (event, element) {
                 if (this.username === 'root') {
                     tableContent += '<td></td><td></td>';
                 } else {
-                    tableContent += '<td><a class="btn btn-warning btn-md active" onclick="removeUserToGroup(event, $(this));" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-share">&nbsp;Retirer du groupe</i></a></td>';
+                    tableContent += '<td><a class="btn btn-warning btn-md active" onclick="removeUserToGroup(event, $(this));" href="#" rel="' + this._id + '/' + groupID + '"><i class="glyphicon glyphicon-share">&nbsp;Retirer du groupe</i></a></td>';
                     tableContent += '<td><a class="btn btn-danger btn-md active" onclick="deleteUser(event, $(this));" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-remove">&nbsp;Supprimer</i></a></td>';
                 }
                 tableContent += '</tr>';
@@ -317,3 +322,18 @@ var addUserToGroup = function(event, element) {
     });
 };
 
+var removeUserToGroup = function(event, element) {
+    event.preventDefault();
+
+    $.ajax({
+        type: 'POST',
+        url: '/admin/removeusertogroup/' + element.attr('rel')
+    }).done(function (response) {
+        var list = element.attr('rel').split('/');
+
+        if (response.msg !== '') {
+            alert('Error: ' + response.msg);
+        }
+        showUserListOfGroup2(list[0]);
+    });
+};

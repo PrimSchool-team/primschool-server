@@ -99,7 +99,8 @@ router.post('/addgroup', function (req, res) {
     newGroup.name = req.body.name;
     newGroup.sigle = req.body.sigle;
     db.models.School.findById(req.body.idSchool, function (err, school) {
-        newGroup.school = school;
+        newGroup.school.id = school._id;
+        newGroup.school.name = school.name;
         db.models.User.findById(req.body.idOwner, function (err, user) {
             newGroup.owner = user;
             newGroup.save(function (err) {
@@ -202,15 +203,17 @@ router.post('/addusertogroup', function (req, res) {
 
     db.models.Group.findById(req.body.idGroup, function (err, group) {
         if (!err) {
+            var username = req.body.firstName.charAt(0) + req.body.lastName;
             var newUser = new db.models.User();
 
-            newUser.username = '';
+            newUser.username = username;
             newUser.password = '';
             newUser.email = '';
             newUser.firstName = req.body.firstName;
             newUser.lastName = req.body.lastName;
             newUser.isActive = false;
             newUser.groups = [group._id];
+            newUser.school = group.school.id;
             newUser.roles = ["student"];
             newUser.save(function (err) {
                 res.send((err === null) ? {msg: ''} : {msg: 'error: ' + err});
@@ -234,5 +237,31 @@ router.get('/createusertogroup/:id', function (req, res, next) {
         }
     }
 );
+
+router.post('/removeusertogroup/:idUser/:idGroup', function (req, res) {
+    var db = req.app.db;
+    var idUser = req.params.idUser;
+    var idGroup = req.params.idGroup;
+
+    db.models.User.findById(idUser, function (err, user) {
+        if (!err) {
+            db.models.Group.findById(req.body.idGroup, function (err, group) {
+                if (!err) {
+                    var groups = user.groups;
+                    var index = groups.indexOf(group._id);
+
+                    groups.splice(index, 1);
+                    db.models.User.where({_id: idUser}).update({$set: {groups: groups}}, function (err) {
+                        res.send((err === null) ? {msg: ''} : {msg: 'error: ' + err});
+                    });
+                } else {
+                    res.send({msg: 'error: ' + err});
+                }
+            });
+        } else {
+            res.send({msg: 'error: ' + err});
+        }
+    });
+});
 
 module.exports = router;
