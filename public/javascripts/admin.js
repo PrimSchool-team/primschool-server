@@ -214,11 +214,11 @@ var showUserList2 = function (schoolID) {
                 tableContent += '<td></td><td></td>';
             } else {
                 if (this.isActive) {
-                    tableContent += '<td><a class="btn btn-warning btn-md active" title="Desactiver" onclick="invalidateUser(event, $(this));" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-thumbs-down"></i></a></td>';
+                    tableContent += '<td><a class="btn btn-warning btn-md active" title="Desactiver" onclick="invalidateUser(event, $(this), \'' + schoolID + '\');" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-thumbs-down"></i></a></td>';
                 } else {
-                    tableContent += '<td><a class="btn btn-success btn-md active" title="Activer" onclick="validateUser(event, $(this));" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-thumbs-up"></i></a></td>';
+                    tableContent += '<td><a class="btn btn-success btn-md active" title="Activer" onclick="validateUser(event, $(this), \'' + schoolID + '\');" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-thumbs-up"></i></a></td>';
                 }
-                tableContent += '<td><a class="btn btn-danger btn-md active" title="Supprimer" onclick="deleteUser(event, $(this));" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-remove"></i></a></td>';
+                tableContent += '<td><a class="btn btn-danger btn-md active" title="Supprimer" onclick="deleteUser(event, $(this), \'' + schoolID + '\');" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-remove"></i></a></td>';
             }
             tableContent += '</tr>';
         });
@@ -226,7 +226,7 @@ var showUserList2 = function (schoolID) {
     });
 };
 
-var deleteUser = function (event, element) {
+var deleteUser = function (event, element, idSchool) {
     event.preventDefault();
 
     var confirmation = confirm('Etes-vous sûr de vouloir supprimer l\'utilisateur ?');
@@ -239,14 +239,14 @@ var deleteUser = function (event, element) {
             if (response.msg !== '') {
                 alert('Error: ' + response.msg);
             }
-            showUserList();
+            showUserList2(idSchool);
         });
     } else {
         return false;
     }
 };
 
-var validateUser = function (event, element) {
+var validateUser = function (event, element, idSchool) {
     event.preventDefault();
     $.ajax({
         type: 'POST',
@@ -255,11 +255,11 @@ var validateUser = function (event, element) {
         if (response.msg !== '') {
             alert('Error: ' + response.msg);
         }
-        showUserList();
+        showUserList2(idSchool);
     });
 };
 
-var invalidateUser = function (event, element) {
+var invalidateUser = function (event, element, idSchool) {
     event.preventDefault();
     $.ajax({
         type: 'POST',
@@ -268,7 +268,7 @@ var invalidateUser = function (event, element) {
         if (response.msg !== '') {
             alert('Error: ' + response.msg);
         }
-        showUserList();
+        showUserList2(idSchool);
     });
 };
 
