@@ -164,9 +164,13 @@ router.get('/userlist/:id', function (req, res) {
         });
     } else {
         db.models.School.findById(schoolID, function (err, school) {
-            db.models.User.find({school: school._id}, {}, function (err, users) {
-                res.json(users);
-            });
+            if (err) {
+                res.json();
+            } else {
+                db.models.User.find({school: school._id}, {}, function (err, users) {
+                    res.json(users);
+                });
+            }
         });
     }
 });
@@ -198,12 +202,17 @@ router.post('/invalidateuser/:id', function (req, res) {
     });
 });
 
-router.get('/userlistofgroup/:id', function (req, res) {
+router.get('/userlistofgroup/:idGroup', function (req, res) {
     var db = req.app.db;
-    var groupID = req.params.id;
 
-    db.models.User.find({groups: groupID}, {}, function (err, users) {
-        res.json(users);
+    db.models.Group.findById(req.params.idGroup, function (err, group) {
+        if (err) {
+            res.json();
+        } else {
+            db.models.User.find({groups: group._id}, {}, function (err, users) {
+                res.json(users);
+            });
+        }
     });
 });
 
@@ -282,11 +291,8 @@ router.get('/assignusertogroup/:idUser/:idSchool', function (req, res, next) {
             req.app.db.models.User.findById(req.params.idUser, function (err, student) {
                 req.app.db.models.School.findById(req.params.idSchool, function (err, school) {
                     req.app.db.models.Group.find({'school.id': school._id}, {}, function (err, groups) {
-
-                        console.log(student);
-                        console.log(groups);
-
                         res.render('assignusertogroup', {
+                            user: req.user,
                             school: school,
                             student: student,
                             groups: groups

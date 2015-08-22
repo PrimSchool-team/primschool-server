@@ -352,7 +352,7 @@ var removeUserToGroup = function (event, element) {
         if (response.msg !== '') {
             alert('Error: ' + response.msg);
         }
-        showUserListOfGroup2(list[0]);
+        showUserListOfGroup2(list[1]);
     });
 };
 
@@ -366,6 +366,6 @@ var assignUserToGroup = function (event, element) {
         if (response.msg !== '') {
             alert('Error: ' + response.msg);
         }
-        showUserList2($('#assignusertogroup fieldset input#inputIdSchool').val());
+        window.location.replace("/admin");
     });
 };
