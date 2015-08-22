@@ -1,0 +1,30 @@
+extends layout
+
+block content
+    script(src="/javascripts/admin.js")
+
+    br
+    br
+    div.row.vertical-offset-100
+        div.col-md-8.col-md-offset-2
+            div.panel.panel-primary
+                div.panel-heading
+                    h3#title(class='panel-title') Affectation à un groupe
+                    div#backdiv(style="float: right;")
+                        a#backlink(class='btn btn-danger btn-md active',href="#")
+                            i(class="glyphicon glyphicon-share-alt")
+                div.panel-body#panelbody
+                    form(class='form-signup', action='#', method='POST')
+                    #assignusertogroup
+                        fieldset
+                            input#inputIdSchool(type='hidden', name='idSchool', value='#{school._id}')
+                            input#inputIdUser(type='hidden', name='idUser', value='#{student._id}')
+                            b #{student.firstName} #{student.lastName}
+                            br
+                            br
+                            select#inputIdGroup(name="idGroup", class='form-control', placeholder='Groupe',required)
+                                option(value='-1') Sélectionner un groupe
+                                each group in groups
+                                    option(value='#{group._id}') #{group.name}
+                            br
+                            button(class='btn btn-lg btn-primary btn-block', onclick="assignUserToGroup(event, $(this))", type='submit') Affecter

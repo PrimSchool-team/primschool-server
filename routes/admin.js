@@ -163,8 +163,10 @@ router.get('/userlist/:id', function (req, res) {
             res.json(users);
         });
     } else {
-        db.models.User.find({school: schoolID}, {}, function (err, users) {
-            res.json(users);
+        db.models.School.findById(schoolID, function (err, school) {
+            db.models.User.find({school: school._id}, {}, function (err, users) {
+                res.json(users);
+            });
         });
     }
 });
@@ -196,7 +198,7 @@ router.post('/invalidateuser/:id', function (req, res) {
     });
 });
 
-router.get('/userlist/:id', function (req, res) {
+router.get('/userlistofgroup/:id', function (req, res) {
     var db = req.app.db;
     var groupID = req.params.id;
 
@@ -258,6 +260,58 @@ router.post('/removeusertogroup/:idUser/:idGroup', function (req, res) {
                     var index = groups.indexOf(group._id);
 
                     groups.splice(index, 1);
+                    db.models.User.where({_id: idUser}).update({$set: {groups: groups}}, function (err) {
+                        res.send((err === null) ? {msg: ''} : {msg: 'error: ' + err});
+                    });
+                } else {
+                    res.send({msg: 'error: ' + err});
+                }
+            });
+        } else {
+            res.send({msg: 'error: ' + err});
+        }
+    });
+});
+
+router.get('/assignusertogroup/:idUser/:idSchool', function (req, res, next) {
+        if (req.isAuthenticated())
+            return next();
+        res.redirect('/');
+    }, function (req, res) {
+        if (req.user.username === 'root') {
+            req.app.db.models.User.findById(req.params.idUser, function (err, student) {
+                req.app.db.models.School.findById(req.params.idSchool, function (err, school) {
+                    req.app.db.models.Group.find({'school.id': school._id}, {}, function (err, groups) {
+
+                        console.log(student);
+                        console.log(groups);
+
+                        res.render('assignusertogroup', {
+                            school: school,
+                            student: student,
+                            groups: groups
+                        });
+                    });
+                });
+            });
+        } else {
+            res.redirect('/');
+        }
+    }
+);
+
+router.post('/assignusertogroup/:idUser/:idGroup', function (req, res) {
+    var db = req.app.db;
+    var idUser = req.params.idUser;
+    var idGroup = req.params.idGroup;
+
+    db.models.User.findById(idUser, function (err, user) {
+        if (!err) {
+            db.models.Group.findById(req.body.idGroup, function (err, group) {
+                if (!err) {
+                    var groups = user.groups;
+
+                    groups.push(group._id);
                     db.models.User.where({_id: idUser}).update({$set: {groups: groups}}, function (err) {
                         res.send((err === null) ? {msg: ''} : {msg: 'error: ' + err});
                     });

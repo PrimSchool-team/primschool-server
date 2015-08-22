@@ -27,10 +27,11 @@ var showSchoolList = function () {
     var tableContent = '';
 
     $.getJSON('/admin/schoollist', function (data) {
-        var text = $('<i />', { class: "glyphicon glyphicon-plus", html: "&nbsp;Nouvelle école" });
+        var text = $('<i />', {class: "glyphicon glyphicon-plus", html: "&nbsp;Nouvelle école"});
         var button = $('<a />', {
             class: "btn btn-primary btn-md active",
-            href: "/admin/createschool/" });
+            href: "/admin/createschool/"
+        });
 
         $('#title').html('Ecoles');
         $('#backdiv').hide();
@@ -53,7 +54,7 @@ var showSchoolList = function () {
     });
 };
 
-var addSchool = function(event, element) {
+var addSchool = function (event, element) {
     event.preventDefault();
 
     var newSchool = {
@@ -65,7 +66,7 @@ var addSchool = function(event, element) {
         data: newSchool,
         url: '/admin/addschool',
         dataType: 'JSON'
-    }).done(function( response ) {
+    }).done(function (response) {
         if (response.msg === '') {
             window.location.replace("/admin");
         } else {
@@ -103,12 +104,13 @@ var showGroupList = function (element) {
 
     $.ajax({
         dataType: 'json',
-        url : '/admin/grouplist/' + element.attr('rel')
+        url: '/admin/grouplist/' + element.attr('rel')
     }).done(function (data) {
-        var text = $('<i />', { class: "glyphicon glyphicon-plus", html: "&nbsp;Nouveau groupe" });
+        var text = $('<i />', {class: "glyphicon glyphicon-plus", html: "&nbsp;Nouveau groupe"});
         var button = $('<a />', {
             class: 'btn btn-primary btn-md active',
-            href: '/admin/creategroup/' + element.attr('rel') });
+            href: '/admin/creategroup/' + element.attr('rel')
+        });
 
         $('#title').html('Groupes');
         $('#backdiv').show();
@@ -132,7 +134,7 @@ var showGroupList = function (element) {
     });
 };
 
-var addGroup = function(event, element) {
+var addGroup = function (event, element) {
     event.preventDefault();
 
     var newGroup = {
@@ -146,7 +148,7 @@ var addGroup = function(event, element) {
         data: newGroup,
         url: '/admin/addgroup',
         dataType: 'JSON'
-    }).done(function( response ) {
+    }).done(function (response) {
         if (response.msg === '') {
             window.location.replace("/admin");
         } else {
@@ -180,29 +182,43 @@ var deleteGroup = function (event, element) {
 // ***************
 
 var showUserList = function (element) {
+    showUserList2(element.attr('rel'));
+};
+
+var showUserList2 = function (schoolID) {
     var tableContent = '';
 
-    $.getJSON('/admin/userlist/' + element.attr('rel'), function (data) {
+    $.getJSON('/admin/userlist/' + schoolID, function (data) {
         $('#title').html('Utilisateurs');
         $('#backdiv').show();
         $('#backlink').attr('onclick', 'showSchoolList();');
         $('#newbutton').html('');
-        $('#tablehead').html('<th>Login</th><th>Email</th><th>Prénom</th><th>Nom</th>');
+        $('#tablehead').html('<th>Login</th><th>Email</th><th>Prénom</th><th>Nom</th><th>Rôles</th><th></th><th></th><th></th>');
         $.each(data, function () {
             tableContent += '<tr>';
             tableContent += '<td><a href="#" rel="' + this._id + '" title="Show Details">' + this.username + '</a></td>';
             tableContent += '<td>' + this.email + '</td>';
             tableContent += '<td>' + this.firstName + '</td>';
             tableContent += '<td>' + this.lastName + '</td>';
+            tableContent += '<td>';
+            this.roles.forEach(function (role) {
+                tableContent += role + ' ';
+            });
+            tableContent += '</td>';
+            if (this.roles.indexOf("student") !== -1 && this.groups.length == 0) {
+                tableContent += '<td><a class="btn btn-success btn-md active" title="Affecter à un groupe" href="/admin/assignusertogroup/' + this._id + '/' + schoolID + '"><i class="glyphicon glyphicon-plus"></i></a></td>';
+            } else {
+                tableContent += '<td></td>';
+            }
             if (this.username === 'root') {
                 tableContent += '<td></td><td></td>';
             } else {
                 if (this.isActive) {
-                    tableContent += '<td><a class="btn btn-warning btn-md active" onclick="invalidateUser(event, $(this));" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-thumbs-down">&nbsp;Desactiver</i></a></td>';
+                    tableContent += '<td><a class="btn btn-warning btn-md active" title="Desactiver" onclick="invalidateUser(event, $(this));" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-thumbs-down"></i></a></td>';
                 } else {
-                    tableContent += '<td><a class="btn btn-success btn-md active" onclick="validateUser(event, $(this));" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-thumbs-up">&nbsp;Activer</i></a></td>';
+                    tableContent += '<td><a class="btn btn-success btn-md active" title="Activer" onclick="validateUser(event, $(this));" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-thumbs-up"></i></a></td>';
                 }
-                tableContent += '<td><a class="btn btn-danger btn-md active" onclick="deleteUser(event, $(this));" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-remove">&nbsp;Supprimer</i></a></td>';
+                tableContent += '<td><a class="btn btn-danger btn-md active" title="Supprimer" onclick="deleteUser(event, $(this));" href="#" rel="' + this._id + '"><i class="glyphicon glyphicon-remove"></i></a></td>';
             }
             tableContent += '</tr>';
         });
@@ -265,16 +281,17 @@ var showUserListOfGroup2 = function (groupID) {
     var tableContent = '';
 
     $.getJSON('/admin/group/' + groupID, function (data) {
-        $('#title').html('Elèves [' + data.name +']');
+        $('#title').html('Elèves [' + data.name + ']');
         $.ajax({
             type: 'GET',
-            url: '/admin/userlist/' + groupID,
+            url: '/admin/userlistofgroup/' + groupID,
             dataType: 'JSON'
         }).done(function (data) {
-            var text = $('<i />', { class: "glyphicon glyphicon-plus", html: "&nbsp;Nouveau élève" });
+            var text = $('<i />', {class: "glyphicon glyphicon-plus", html: "&nbsp;Nouveau élève"});
             var button = $('<a />', {
                 class: 'btn btn-primary btn-md active',
-                href: '/admin/createusertogroup/' + groupID });
+                href: '/admin/createusertogroup/' + groupID
+            });
 
             $('#backdiv').show();
             $('#backlink').attr('onclick', 'showSchoolList();');
@@ -301,7 +318,7 @@ var showUserListOfGroup2 = function (groupID) {
     });
 };
 
-var addUserToGroup = function(event, element) {
+var addUserToGroup = function (event, element) {
     event.preventDefault();
 
     var newUser = {
@@ -314,7 +331,7 @@ var addUserToGroup = function(event, element) {
         data: newUser,
         url: '/admin/addusertogroup',
         dataType: 'JSON'
-    }).done(function( response ) {
+    }).done(function (response) {
         if (response.msg === '') {
             window.location.replace("/admin");
         } else {
@@ -323,7 +340,7 @@ var addUserToGroup = function(event, element) {
     });
 };
 
-var removeUserToGroup = function(event, element) {
+var removeUserToGroup = function (event, element) {
     event.preventDefault();
 
     $.ajax({
@@ -336,5 +353,19 @@ var removeUserToGroup = function(event, element) {
             alert('Error: ' + response.msg);
         }
         showUserListOfGroup2(list[0]);
+    });
+};
+
+var assignUserToGroup = function (event, element) {
+    event.preventDefault();
+
+    $.ajax({
+        type: 'POST',
+        url: '/admin/assignusertogroup/' + $('#assignusertogroup fieldset input#inputIdUser').val() + '/' + $('#assignusertogroup fieldset select#inputIdGroup').val()
+    }).done(function (response) {
+        if (response.msg !== '') {
+            alert('Error: ' + response.msg);
+        }
+        showUserList2($('#assignusertogroup fieldset input#inputIdSchool').val());
     });
 };
